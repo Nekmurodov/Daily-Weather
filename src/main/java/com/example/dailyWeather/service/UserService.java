@@ -1,0 +1,86 @@
+package com.example.dailyWeather.service;
+
+import com.example.dailyWeather.dto.RegistrationRequest;
+import com.example.dailyWeather.dto.UserDto;
+import com.example.dailyWeather.entity.user.User;
+import com.example.dailyWeather.exception.AlreadyExistException;
+import com.example.dailyWeather.exception.NotFoundException;
+import com.example.dailyWeather.mapper.UserMapper;
+import com.example.dailyWeather.repository.UserRepository;
+import com.example.dailyWeather.response.ResponseData;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+public class UserService {
+
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+
+    public ResponseData<?> registerUser(RegistrationRequest registrationRequest) {
+        if (userRepository.existsByUsernameAndDeletedFalse(registrationRequest.getUsername())) {
+            throw new AlreadyExistException("Username already exists!");
+        }
+        User user = userMapper.toEntity(registrationRequest);
+        user.setEnabled(true);
+        userRepository.save(user);
+        return ResponseData.successResponse(userMapper.toDto(user));
+    }
+
+    public ResponseData<?> updateUser(UUID userId, RegistrationRequest registrationRequest) {
+        Optional<User> userOptional = userRepository.findByIdAndDeletedFalse(userId);
+        if (userOptional.isEmpty()) {
+            throw new NotFoundException("User not found");
+        }
+        if (this.userRepository.existsByUsernameAndDeletedFalse(registrationRequest.getUsername())) {
+            throw new AlreadyExistException("Username already exists");
+        }
+        User user = this.userMapper.updateEntity(userOptional.get(), registrationRequest);
+        this.userRepository.save(user);
+        return ResponseData.successResponse(this.userMapper.toDto(user));
+    }
+
+    public ResponseData<?> deleteUser(UUID userId) {
+        Optional<User> userOptional = userRepository.findByIdAndDeletedFalse(userId);
+        if (userOptional.isEmpty()) {
+            throw new NotFoundException("User not found");
+        }
+        User user = userOptional.get();
+        user.setDeleted(true);
+        this.userRepository.save(user);
+        return ResponseData.successResponse("success");
+    }
+
+    public ResponseData<UserDto> getUser(UUID userId) {
+        Optional<User> userOptional = userRepository.findByIdAndDeletedFalse(userId);
+        if (userOptional.isEmpty()) {
+            throw new NotFoundException("User not found");
+        }
+        return ResponseData.successResponse(this.userMapper.toDto(userOptional.get()));
+    }
+
+    public ResponseData<?> getAllUsers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> users = this.userRepository.findAllByDeletedFalse(pageable);
+        if (users.isEmpty()) {
+            throw new NotFoundException("Users not found");
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", userMapper.toDto(users.toList()));
+        response.put("total", users.getTotalElements());
+        response.put("totalPages", users.getTotalPages());
+
+        return ResponseData.successResponse(response);
+    }
+
+}

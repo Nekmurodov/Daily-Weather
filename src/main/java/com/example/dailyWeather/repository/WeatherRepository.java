@@ -16,4 +16,5 @@ public interface WeatherRepository extends JpaRepository<Weather, UUID> {
 
     @Query("SELECT w.name FROM Weather w")
     List<String> findAllNames();
+
 }

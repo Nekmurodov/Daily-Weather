@@ -1,7 +1,6 @@
 package com.example.dailyWeather.entity.user;
 
 import com.example.dailyWeather.entity.AbsEntity;
-import com.example.dailyWeather.enums.Permissions;
 import com.example.dailyWeather.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,7 +11,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -39,15 +37,9 @@ public class User extends AbsEntity implements UserDetails {
     private boolean accountNonExpiredOrCredentialsNonExpired = true;
 
 
-    @Enumerated(EnumType.STRING)
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<Permissions> permissions;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return permissions.stream()
-                .map(permission -> new SimpleGrantedAuthority(permission.name()))
-                .collect(Collectors.toList());
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override

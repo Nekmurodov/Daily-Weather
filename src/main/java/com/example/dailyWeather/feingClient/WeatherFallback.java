@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class WeatherFallback implements WeatherClient {
 
     @Override
-    public JsonNode getWeather(String apiKey, String city) {
+    public JsonNode getWeather(String city) {
         JsonNodeFactory factory = JsonNodeFactory.instance;
 
         return factory.objectNode()

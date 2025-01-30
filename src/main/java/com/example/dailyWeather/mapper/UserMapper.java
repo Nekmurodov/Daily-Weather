@@ -23,7 +23,7 @@ public class UserMapper {
         user.setSurname(registrationRequest.getSurname());
         user.setUsername(registrationRequest.getUsername());
         user.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
-        user.setRole(Role.ADMIN);
+        user.setRole(Role.USER);
         return user;
     }
 

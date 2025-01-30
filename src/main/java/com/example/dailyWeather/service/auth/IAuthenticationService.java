@@ -1,4 +1,4 @@
-package com.example.dailyWeather.service.email;
+package com.example.dailyWeather.service.auth;
 
 import com.example.dailyWeather.dto.AuthenticationDto;
 import com.example.dailyWeather.dto.LoginDto;

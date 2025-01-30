@@ -8,11 +8,13 @@ import com.example.dailyWeather.repository.WeatherRepository;
 import com.example.dailyWeather.response.ResponseData;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -22,13 +24,54 @@ public class WeatherService {
     private final WeatherRepository weatherRepository;
     private final WeatherMapper weatherMapper;
 
-    @Value("${weather.api-key}")
-    private String apiKey;
+
+    public ResponseData<?> getName(String name) {
+        Optional<Weather> optionalWeather = this.weatherRepository.findByName(name);
+        return optionalWeather.map(weather -> ResponseData.successResponse(this.weatherMapper.toDto(weather)))
+                .orElseGet(() -> ResponseData.successResponse(this.weatherMapper.toDto(getWeather(name))));
+    }
+
+//    public ResponseData<?> getAllCityName() {
+//        List<String> list =this.weatherRepository.findAllNames();
+//        if (list.isEmpty()){
+//            throw new NotFoundException("City names not found");
+//        }
+//        return ResponseData.successResponse();
+//    }
+
+
+    public ResponseData<?> getByNames(List<String> names) {
+        List<Weather> weatherList = names.stream()
+                .map(name -> weatherRepository.findByName(name).orElseGet(() -> getWeather(name)))
+                .toList();
+        return ResponseData.successResponse(this.weatherMapper.toDto(weatherList));
+    }
+
+    public ResponseData<?> getById(UUID cityId) {
+        Weather weather = weatherRepository.findById(cityId)
+                .orElseThrow(() -> new NotFoundException("City not found"));
+        return ResponseData.successResponse(weatherMapper.toDto(weather));
+    }
+
+    public ResponseData<?> getAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Weather> weathers = this.weatherRepository.findAll(pageable);
+        if (weathers.getTotalElements() == 0) {
+            throw new NotFoundException("Weathers not found");
+        }
+        return ResponseData.successResponse(
+                Map.of(
+                        "data", weatherMapper.toDto(weathers.getContent()),
+                        "totalPages", weathers.getTotalPages(),
+                        "total", weathers.getTotalElements()
+                )
+        );
+    }
 
     public Weather getWeather(String city) {
-        JsonNode body = weatherClient.getWeather(apiKey, city);
+        JsonNode body = weatherClient.getWeather( city);
+        Weather weather = weatherRepository.findByName(city).orElseGet(Weather::new);
 
-        Weather weather = new Weather();
         weather.setName(body.get("location").get("name").asText());
         weather.setCountry(body.get("location").get("country").asText());
         weather.setLat(body.get("location").get("lat").asDouble());
@@ -72,10 +115,4 @@ public class WeatherService {
         return "#616161";
     }
 
-    public ResponseData<?> getName(String name) {
-        Optional<Weather> optionalWeather = this.weatherRepository.findByName(name);
-        //            throw new NotFoundException("There is no weather information available for this city.");
-        return optionalWeather.map(weather -> ResponseData.successResponse(this.weatherMapper.toDto(weather)))
-                .orElseGet(() -> ResponseData.successResponse(this.weatherMapper.toDto(getWeather(name))));
-    }
 }

@@ -1,4 +1,4 @@
-package com.example.dailyWeather.service.email;
+package com.example.dailyWeather.service.auth;
 
 import com.example.dailyWeather.dto.AuthenticationDto;
 import com.example.dailyWeather.dto.LoginDto;
@@ -57,7 +57,7 @@ public class AuthenticationService implements IAuthenticationService {
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String refreshToken;
-        final String userEmail;
+        final String username;
 
         // Refresh token mavjudligini tekshirish
         if (authHeader == null || !authHeader.startsWith(RestConstant.TOKEN_TYPE)) {
@@ -65,18 +65,19 @@ public class AuthenticationService implements IAuthenticationService {
         }
 
         refreshToken = authHeader.substring(7); // "Bearer "ni kesib tashlash
-        userEmail = jwtProvider.extractUsername(refreshToken);
+        username = jwtProvider.extractUsername(refreshToken);
 
         // Token validatsiya qilish
-        if (userEmail != null) {
-            User user = userRepository.findByUsernameAndDeletedFalse(userEmail).orElseThrow(
+        if (username != null) {
+            User user = userRepository.findByUsernameAndDeletedFalse(username).orElseThrow(
                     () -> new NotFoundException(MessageService.getMessage(MessageKey.USER_NOT_FOUND)));
 
             if (jwtProvider.isTokenValid(refreshToken, user)) {
                 String accessToken = jwtProvider.generateAccessToken(user);
+                String newRefreshToken = jwtProvider.generateRefreshToken(user);
                 AuthenticationDto authenticationResponse = AuthenticationDto.builder()
                         .accessToken(accessToken)
-                        .refreshToken(refreshToken)
+                        .refreshToken(newRefreshToken)
                         .build();
                 new ObjectMapper().writeValue(response.getOutputStream(), authenticationResponse);
             }

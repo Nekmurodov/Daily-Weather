@@ -79,6 +79,7 @@ public class GlobalExceptionHandler {
                 webRequest.getDescription(false),
                 MessageService.getMessage(MessageKey.BAD_CREDENTIALS_EXCEPTION), HttpStatus.UNAUTHORIZED.value()), HttpStatus.UNAUTHORIZED);
     }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseData<ErrorData>> handleException(Exception exception, WebRequest request){
         LOGGER.error(exception.getMessage(), exception);
@@ -87,6 +88,7 @@ public class GlobalExceptionHandler {
                 request.getDescription(false),
                 HttpStatus.FORBIDDEN.value()), HttpStatus.FORBIDDEN);
     }
+
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<ResponseData<ErrorData>> handleException(ForbiddenException exception, WebRequest request){
         LOGGER.error(exception.getMessage(), exception);

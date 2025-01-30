@@ -25,7 +25,7 @@ public class WeatherService {
     @Value("${weather.api-key}")
     private String apiKey;
 
-    public void getWeather(String city) {
+    public Weather getWeather(String city) {
         JsonNode body = weatherClient.getWeather(apiKey, city);
 
         Weather weather = new Weather();
@@ -40,8 +40,8 @@ public class WeatherService {
         weather.setWindColor(getWindColor(weather.getWindKph()));
         weather.setCloudColor(getCloudColor(weather.getCloud()));
         weather.setRecordedAt(LocalDateTime.now());
-
         weatherRepository.save(weather);
+        return weather;
     }
 
     private String getTempColor(double tempC) {
@@ -74,9 +74,8 @@ public class WeatherService {
 
     public ResponseData<?> getName(String name) {
         Optional<Weather> optionalWeather = this.weatherRepository.findByName(name);
-        if (optionalWeather.isEmpty()) {
-            throw new NotFoundException("There is no weather information available for this city.");
-        }
-        return ResponseData.successResponse(this.weatherMapper.toDto(optionalWeather.get()));
+        //            throw new NotFoundException("There is no weather information available for this city.");
+        return optionalWeather.map(weather -> ResponseData.successResponse(this.weatherMapper.toDto(weather)))
+                .orElseGet(() -> ResponseData.successResponse(this.weatherMapper.toDto(getWeather(name))));
     }
 }

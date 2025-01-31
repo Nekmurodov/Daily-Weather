@@ -98,16 +98,14 @@ DailyWeather is a RESTful API that provides weather information for cities world
       ```json
       {
         "username": "user1",
-        "password": "password123",
-        "email": "user@example.com"
+        "password": "password123"
       }
       ```
     - **Response:**
       ```json
       {
         "id": "user-id",
-        "username": "user1",
-        "email": "user@example.com"
+        "username": "user1"
       }
       ```
 
@@ -116,16 +114,14 @@ DailyWeather is a RESTful API that provides weather information for cities world
     - **Request Body:**
       ```json
       {
-        "username": "updatedUser",
-        "email": "updated@example.com"
+        "username": "updatedUser"
       }
       ```
     - **Response:**
       ```json
       {
         "id": "user-id",
-        "username": "updatedUser",
-        "email": "updated@example.com"
+        "username": "updatedUser"
       }
       ```
 
@@ -144,8 +140,7 @@ DailyWeather is a RESTful API that provides weather information for cities world
       ```json
       {
         "id": "user-id",
-        "username": "user1",
-        "email": "user@example.com"
+        "username": "user1"
       }
       ```
 
@@ -157,8 +152,7 @@ DailyWeather is a RESTful API that provides weather information for cities world
         "data": [
           {
             "id": "user-id",
-            "username": "user1",
-            "email": "user@example.com"
+            "username": "user1"
           }
         ],
         "totalPages": 1,

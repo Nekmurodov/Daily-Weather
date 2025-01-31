@@ -29,11 +29,11 @@ public class WeatherController {
         return this.weatherService.getName(name);
     }
 
-//    @CheckRole("USER,ADMIN")
-//    @GetMapping("/get-all-city-name")
-//    public ResponseData<?> getAllCityName() {
-//        return this.weatherService.getAllCityName();
-//    }
+    @CheckRole("USER,ADMIN")
+    @GetMapping("/get-all-city-names")
+    public ResponseData<?> getAllCityName() {
+        return this.weatherService.getAllCityName();
+    }
 
     @CheckRole("USER,ADMIN")
     @GetMapping("/get-by-names")

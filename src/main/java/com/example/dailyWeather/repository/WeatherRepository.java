@@ -1,5 +1,6 @@
 package com.example.dailyWeather.repository;
 
+import com.example.dailyWeather.dto.CityDto;
 import com.example.dailyWeather.entity.weather.Weather;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,5 +17,8 @@ public interface WeatherRepository extends JpaRepository<Weather, UUID> {
 
     @Query("SELECT w.name FROM Weather w")
     List<String> findAllNames();
+
+    @Query("SELECT new com.example.dailyWeather.dto.CityDto(w.id, w.name) FROM Weather w")
+    List<CityDto> findAllName();
 
 }

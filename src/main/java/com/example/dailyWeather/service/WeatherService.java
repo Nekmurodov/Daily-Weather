@@ -1,5 +1,6 @@
 package com.example.dailyWeather.service;
 
+import com.example.dailyWeather.dto.CityDto;
 import com.example.dailyWeather.entity.weather.Weather;
 import com.example.dailyWeather.exception.NotFoundException;
 import com.example.dailyWeather.feingClient.WeatherClient;
@@ -31,13 +32,13 @@ public class WeatherService {
                 .orElseGet(() -> ResponseData.successResponse(this.weatherMapper.toDto(getWeather(name))));
     }
 
-//    public ResponseData<?> getAllCityName() {
-//        List<String> list =this.weatherRepository.findAllNames();
-//        if (list.isEmpty()){
-//            throw new NotFoundException("City names not found");
-//        }
-//        return ResponseData.successResponse();
-//    }
+    public ResponseData<?> getAllCityName() {
+        List<CityDto> list =this.weatherRepository.findAllName();
+        if (list.isEmpty()){
+            throw new NotFoundException("City names not found");
+        }
+        return ResponseData.successResponse(list);
+    }
 
 
     public ResponseData<?> getByNames(List<String> names) {
